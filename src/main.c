@@ -29,12 +29,12 @@ int main(void) {
     }
 
     Color4 black;
-    vec4Zero(&black);
+    vec4Zero(black);
     clearColorBuffer(fb,black);
 
     srand(time(NULL));
 
-    SDL_WM_SetCaption("Lines!",NULL);
+    SDL_WM_SetCaption("Triangles!",NULL);
 
     Vertex center;
     {
@@ -64,7 +64,7 @@ int main(void) {
                 point.color[2] = rand()/(float)RAND_MAX;
 
                 //plotPoint(fb,point.loc,point.color);
-                plotLine(fb,center,point);
+                drawLine(fb,center,point);
             }
         }
         
@@ -72,21 +72,25 @@ int main(void) {
 
         fb->smoothShade = (keys[SDLK_RSHIFT] || keys[SDLK_LSHIFT]);
         if(keys[SDLK_SPACE]) {
-            Vertex line[2];
-            line[0].loc[0] = rand()%SCREEN_WIDTH;
-            line[0].loc[1] = rand()%SCREEN_HEIGHT;
-            line[1].loc[0] = rand()%SCREEN_WIDTH;
-            line[1].loc[1] = rand()%SCREEN_HEIGHT;
+            Vertex tri[3];
+            tri[0].loc[0] = rand()%SCREEN_WIDTH;
+            tri[0].loc[1] = rand()%SCREEN_HEIGHT;
+            tri[1].loc[0] = rand()%SCREEN_WIDTH;
+            tri[1].loc[1] = rand()%SCREEN_HEIGHT;
+            tri[2].loc[0] = rand()%SCREEN_WIDTH;
+            tri[2].loc[1] = rand()%SCREEN_HEIGHT;
 
-            line[0].color[0] = rand()/(float)RAND_MAX;
-            line[0].color[1] = rand()/(float)RAND_MAX;
-            line[0].color[2] = rand()/(float)RAND_MAX;
-            line[1].color[0] = rand()/(float)RAND_MAX;
-            line[1].color[1] = rand()/(float)RAND_MAX;
-            line[1].color[2] = rand()/(float)RAND_MAX;
+            tri[0].color[0] = rand()/(float)RAND_MAX;
+            tri[0].color[1] = rand()/(float)RAND_MAX;
+            tri[0].color[2] = rand()/(float)RAND_MAX;
+            tri[1].color[0] = rand()/(float)RAND_MAX;
+            tri[1].color[1] = rand()/(float)RAND_MAX;
+            tri[1].color[2] = rand()/(float)RAND_MAX;
+            tri[2].color[0] = rand()/(float)RAND_MAX;
+            tri[2].color[1] = rand()/(float)RAND_MAX;
+            tri[2].color[2] = rand()/(float)RAND_MAX;
 
-            //plotPoint(fb,line[0].loc,line[0].color);
-            plotLines(fb,1,line);
+            drawTriangles(fb,1,tri);
         }
 
         refreshSurface(fb);

@@ -50,46 +50,34 @@ void freeFrameBuffer(FrameBuffer* buf) {
 }
 
 void refreshSurface(FrameBuffer* buf) {
+    unsigned i,j;
     Uint8* pixels = buf->surface->pixels;
-    for(unsigned i=0;i<buf->width*buf->height;++i) {
-        for(unsigned j=0;j<3;++j) {
+    for(i=0;i<buf->width*buf->height;++i) {
+        for(j=0;j<3;++j) {
             pixels[i*3+j] = 255*buf->pixels[i][j];
         }
     }
 }
 
 void clearColorBuffer(FrameBuffer* buf,const Color4 color) {
-    for(unsigned i=0;i<buf->width*buf->height;++i) {
-        vec4Copy(&(buf->pixels[i]),color);
+    unsigned i;
+    for(i=0;i<buf->width*buf->height;++i) {
+        vec4Copy(buf->pixels[i],color);
     }
 }
 
 void clearDepthBuffer(FrameBuffer* buf,float depth) {
-    for(unsigned i=0;i<buf->width*buf->height;++i) {
+    unsigned i;
+    for(i=0;i<buf->width*buf->height;++i) {
         buf->depth[i] = depth;
     }
 }
 
 void clearBuffers(FrameBuffer* buf,const Color4 color,float depth) {
-    for(unsigned i=0;i<buf->width*buf->height;++i) {
-        vec4Copy(&(buf->pixels[i]),color);
+    unsigned i;
+    for(i=0;i<buf->width*buf->height;++i) {
+        vec4Copy(buf->pixels[i],color);
         buf->depth[i] = depth;
     }
 }
 
-void plotPoint(FrameBuffer* buf,const Vec4 point,const Color4 color) {
-    unsigned index = point[1]*buf->width+point[0];
-    if(buf->depthEnabled && buf->depth[index] >= point[2]) {
-        return;
-    }
-    vec4Copy(&(buf->pixels[index]),color);
-}
-
-void plotPoints(FrameBuffer* buf,unsigned n,unsigned step,
-                const Vec4* points,const Color4* colors) {
-    unsigned i;
-    for(i=0;i<n;++i,points = ((void*)points+step),
-                    colors = ((void*)colors+step)) {
-        plotPoint(buf,*points,*colors);
-    }
-}

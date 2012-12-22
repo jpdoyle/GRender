@@ -13,26 +13,46 @@ typedef Vec4 Color4;
 
 typedef float Mat44[4][4]; // Column-major
 
-void toVec4    (Vec4* out,unsigned sizeIn,const float* vecIn);
+void toVecN    (unsigned n,float* out,
+                unsigned sizeIn,const float* in);
 
-void vec4Zero  (Vec4* out);
-void vec4Ident (Vec4* out);// Sets w to 1
-void vec4Copy  (Vec4* out,const Vec4 in);
-void vec4Swap  (Vec4* a,  Vec4* b);
-void vec4Negate(Vec4* out,const Vec4 in);
-void vec4Add   (Vec4* out,const Vec4 a,const Vec4 b);
-void vec4Sub   (Vec4* out,const Vec4 a,const Vec4 b);
-void vec4Mult  (Vec4* out,const Vec4 v,float s);
+void vecNZero  (unsigned n,float* out);
+void vecNCopy  (unsigned n,float* out,const float* in);
+void vecNSwap  (unsigned n,float* a,  float* b);
+void vecNNegate(unsigned n,float* out,const float* in);
+void vecNAdd   (unsigned n,float* out,const float* a,const float* b);
+void vecNSub   (unsigned n,float* out,const float* a,const float* b);
+void vecNMult  (unsigned n,float* out,const float* v,float s);
 
-void mat44Zero  (Mat44* out);
-void mat44Ident (Mat44* out);
-void mat44Copy  (Mat44* out,const Mat44 in);
-void mat44Negate(Mat44* out,const Mat44 in);
-void mat44Add   (Mat44* out,const Mat44 a,const Mat44 b);
-void mat44Sub   (Mat44* out,const Mat44 a,const Mat44 b);
-void mat44Scale (Mat44* out,const Mat44 m,float s);
-void mat44Mult  (Mat44* out,const Mat44 a,const Mat44 b);
+#define toVec3(out,sizeIn,in) toVecN(3,out,sizeIn,in)
+#define toVec4(out,sizeIn,in) toVecN(4,out,sizeIn,in)
 
-void mat44MultVec4(Vec4* out,const Mat44 A,const Vec4 v);
+#define vec3Zero(out)      vecNZero  (3,out)
+#define vec3Copy(out,in)   vecNCopy  (3,out,in)
+#define vec3Swap(a,b)      vecNSwap  (3,a,b)
+#define vec3Negate(out,in) vecNNegate(3,(out),in)
+#define vec3Add(out,a,b)   vecNAdd   (3,out,a,b)
+#define vec3Sub(out,a,b)   vecNSub   (3,out,a,b)
+#define vec3Mult(out,v,s)  vecNMult  (3,out,v,s)
+
+#define vec4Zero(out)      vecNZero  (4,out)
+#define vec4Ident(out)     vecNIndent(4,out)
+#define vec4Copy(out,in)   vecNCopy  (4,out,in)
+#define vec4Swap(a,b)      vecNSwap  (4,a,b)
+#define vec4Negate(out,in) vecNNegate(4,out,in)
+#define vec4Add(out,a,b)   vecNAdd   (4,out,a,b)
+#define vec4Sub(out,a,b)   vecNSub   (4,out,a,b)
+#define vec4Mult(out,v,s)  vecNMult  (4,out,v,s)
+
+void mat44Zero  (Mat44 out);
+void mat44Ident (Mat44 out);
+void mat44Copy  (Mat44 out,const Mat44 in);
+void mat44Negate(Mat44 out,const Mat44 in);
+void mat44Add   (Mat44 out,const Mat44 a,const Mat44 b);
+void mat44Sub   (Mat44 out,const Mat44 a,const Mat44 b);
+void mat44Scale (Mat44 out,const Mat44 m,float s);
+void mat44Mult  (Mat44 out,const Mat44 a,const Mat44 b);
+
+void mat44MultVec4(Vec4 out,const Mat44 A,const Vec4 v);
 
 #endif
