@@ -7,7 +7,6 @@
 typedef struct {
     SDL_Surface* surface;
     unsigned width,height;
-    Color4* pixels;
     float* depth;
 
     int depthEnabled;
@@ -17,8 +16,6 @@ typedef struct {
 
 FrameBuffer* createFrameBuffer(unsigned width,unsigned height);
 void freeFrameBuffer(FrameBuffer* buf);
-
-void refreshSurface(FrameBuffer* buf);
 
 void clearColorBuffer(FrameBuffer* buf,const Color4 color);
 void clearDepthBuffer(FrameBuffer* buf,float depth);

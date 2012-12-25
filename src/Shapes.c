@@ -19,10 +19,17 @@ void plotPoint(FrameBuffer* buf,const Vertex vert) {
         return;
     }
     unsigned index = vert.loc[1]*buf->width+vert.loc[0];
-    if(buf->depthEnabled && buf->depth[index] >= vert.loc[2]) {
-        return;
+    if(buf->depthEnabled) {
+        if(buf->depth[index] >= vert.loc[2]) {
+            return;
+        }
+        buf->depth[index] = vert.loc[2];
     }
-    vec4Copy(buf->pixels[index],vert.color);
+    Uint8* pixels = buf->surface->pixels;
+    unsigned i;
+    for(i=0;i<3;++i) {
+        pixels[index*3+i] = 255*vert.color[i]+0.5;
+    }
 }
 
 void plotPoints(FrameBuffer* buf,unsigned n,const Vertex* verts) {

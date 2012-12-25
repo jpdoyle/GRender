@@ -92,6 +92,24 @@ void mat44Copy(Mat44 out,const Mat44 in) {
     }
 }
 
+void mat44Negate(Mat44 out,const Mat44 in) {
+    unsigned i,j;
+    for(i=0;i<4;++i) {
+        for(j=0;j<4;++j) {
+            out[i][j] = -in[i][j];
+        }
+    }
+}
+
+void mat44Transpose(Mat44 out,const Mat44 in) {
+    unsigned i,j;
+    for(i=0;i<4;++i) {
+        for(j=0;j<4;++j) {
+            out[i][j] = in[j][i];
+        }
+    }
+}
+
 void mat44Add(Mat44 out,const Mat44 a,const Mat44 b) {
     unsigned i,j;
     for(i=0;i<4;++i) {
