@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(GRaster)
+project(GRender)
 
 # Enable debug symbols by default
 if(CMAKE_BUILD_TYPE STREQUAL "")
@@ -8,9 +8,9 @@ endif()
 # (you can also set it on the command line: -D CMAKE_BUILD_TYPE=Release)
 
 # Set version information in a config.h file
-set(GRaster_VERSION_MAJOR 0)
-set(GRaster_VERSION_MINOR 1)
-set(GRaster_VERSION_PATCH 0)
+set(GRender_VERSION_MAJOR 0)
+set(GRender_VERSION_MINOR 1)
+set(GRender_VERSION_PATCH 0)
 configure_file(
   "${PROJECT_SOURCE_DIR}/src/config.h.in"
   "${PROJECT_BINARY_DIR}/config/config.h"
@@ -30,10 +30,14 @@ link_libraries (
 )
 
 # Define sources and executable
-set(EXECUTABLE_NAME "graster_test")
+set(EXECUTABLE_NAME "grender_test")
 set(SOURCES
-    src/FrameBuffer.c
-    src/Shapes.c
+    src/Context.c
+    src/Draw.c
+    src/MatrixStack.c
+    src/Shader.c
+    src/Vertex.c
+    src/Raster.c
     src/Types.c
     src/main.c
 )
