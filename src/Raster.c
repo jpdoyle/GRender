@@ -86,7 +86,7 @@ void rasterLine(Context* ct,const Varyings* begin,
                                               +ct->viewport.width);
 
     int i;
-    for(i=istart;i<iend;++i) {
+    for(i=istart;i<=iend;++i) {
         interpolateAlongAxis(varyings,axis,i,begin,end);
 
         rasterPoint(ct,varyings);

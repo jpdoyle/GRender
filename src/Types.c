@@ -283,7 +283,7 @@ void mat44Frustum(Mat44 out,double left,double right,
 void mat44Perspective(Mat44 out,double degFovy,double aspect,
                                 double near,double far) {
     double radFovy = degFovy*M_PI/180;
-    double halfVert = near*tan(radFovy);
+    double halfVert = near*tan(radFovy/2);
     double halfHoriz = halfVert*aspect;
     mat44Frustum(out,-halfHoriz,halfHoriz,
                      -halfVert,halfVert,

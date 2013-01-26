@@ -14,6 +14,8 @@
 
 #define ROTATION_SPEED 45
 #define MOVEMENT_SPEED 2
+#define TETRA_ROTATION_SPEED 45
+#define TETRA_BOUNCE_RATE 2
 
 #define TITLE "Pipeline Test"
 
@@ -38,10 +40,10 @@ typedef struct {
     Color3 color;
 } CustomVert;
 
-CustomVert verts[] = { { { -1.73,-1, 1.5 }, { 1, 0, 0 } },
-                       { {  1.73,-1, 1.5 }, { 0, 1, 0 } },
-                       { {  0,    2, 1.5 }, { 0, 0, 1 } },
-                       { {  0,    0,-1.5 }, { 1, 1, 1 } } };
+CustomVert verts[] = { { { -1.73,-1.5,-1 }, { 1, 0, 0 } },
+                       { {  1.73,-1.5,-1 }, { 0, 1, 0 } },
+                       { {  0,   -1.5, 2 }, { 0, 0, 1 } },
+                       { {  0,    1.5, 0 }, { 1, 1, 1 } } };
 
 // draws the tetrahedron
 unsigned indices[] = { 0,1,2,
@@ -76,23 +78,19 @@ int main(void) {
     ct->fragShader = &shadeFragment;
 
     mat44Perspective(*matStackTop(ct->matrices[MATRIX_PROJECTION]),
-                     45,SCREEN_WIDTH/(float)SCREEN_HEIGHT,1,50);
-
-    //mat44Print(stdout,*matStackTop(ct->matrices[MATRIX_PROJECTION]));
+                     70,SCREEN_WIDTH/(float)SCREEN_HEIGHT,1,50);
 
     mat44Ident(*matStackTop(ct->matrices[MATRIX_MODELVIEW]));
 
     Mat44 translate;
-    mat44Translate(translate,0,0,-3);
+    mat44Translate(translate,0,0,-4);
 
-    //mat44Print(stdout,*matStackTop(ct->matrices[MATRIX_MODELVIEW]));
-
-    Mat44 rotateHoriz,rotateVert;
-    mat44Ident(rotateHoriz);
+    Mat44 rotateVert;
     mat44Ident(rotateVert);
 
-    //mat44Print(stdout,localTransform);
-    
+    Mat44 tetraTransform;
+    mat44Ident(tetraTransform);
+
     VertexArray* varr = createVertArray(0,NULL);
     varr->locs      = &verts[0].loc;
     varr->locStep   = sizeof(CustomVert);
@@ -138,8 +136,9 @@ int main(void) {
             horizRot -= 1;
         }
 
-        int zDelta = 0,
-            xDelta = 0;
+        int xDelta = 0,
+            yDelta = 0,
+            zDelta = 0;
         if(keys[SDLK_w]) { 
             zDelta -= 1;
         }
@@ -152,13 +151,20 @@ int main(void) {
         if(keys[SDLK_d]) {
             xDelta += 1;
         }
+        if(keys[SDLK_RSHIFT] || keys[SDLK_LSHIFT]) {
+            yDelta -= 1;
+        }
+        if(keys[SDLK_SPACE]) {
+            yDelta += 1;
+        }
 
         Mat44 tmp;
 
-        if(xDelta || zDelta) {
+        if(xDelta || yDelta || zDelta) {
             float xDiff = xDelta*MOVEMENT_SPEED*SECONDS_PER_FRAME,
+                  yDiff = yDelta*MOVEMENT_SPEED*SECONDS_PER_FRAME,
                   zDiff = zDelta*MOVEMENT_SPEED*SECONDS_PER_FRAME;
-            mat44Translate(tmp,-xDiff,0,-zDiff);
+            mat44Translate(tmp,-xDiff,-yDiff,-zDiff);
             mat44Mult(translate,tmp,translate);
         }
 
@@ -166,21 +172,21 @@ int main(void) {
             float vertDiff = vertRot*ROTATION_SPEED*SECONDS_PER_FRAME;
             mat44Rotate(tmp,vertDiff,-1,0,0);
             mat44Mult(rotateVert,tmp,rotateVert);
-
-            //mat44Print(stdout,localTransform);
         }
         if(horizRot) {
             float horizDiff = horizRot*ROTATION_SPEED
                                       *SECONDS_PER_FRAME;
             mat44Rotate(tmp,horizDiff,0,1,0);
             mat44Mult(translate,tmp,translate);
-
-            //mat44Print(stdout,localTransform);
         }
+
+        mat44Rotate(tmp,TETRA_ROTATION_SPEED*SECONDS_PER_FRAME,0,1,0);
+        mat44Mult(tetraTransform,tetraTransform,tmp);
 
         matStackPush(ct->matrices[MATRIX_MODELVIEW]);
         matStackMult(ct->matrices[MATRIX_MODELVIEW],rotateVert);
         matStackMult(ct->matrices[MATRIX_MODELVIEW],translate);
+        matStackMult(ct->matrices[MATRIX_MODELVIEW],tetraTransform);
 
         drawShapeIndexed(ct,SHAPE_TRIANGLE,4,varr,indices);
 
