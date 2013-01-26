@@ -5,6 +5,13 @@ float mag2d(float x,float y) {
     return sqrt(x*x+y*y);
 }
 
+static inline int min(int a,int b) {
+    return a < b ? a : b;
+}
+static inline int max(int a,int b) {
+    return a > b ? a : b;
+}
+
 void fswap(float* a,float* b) {
     float tmp = *a;
     *a = *b;
@@ -14,12 +21,12 @@ void fswap(float* a,float* b) {
 void plotPoint(Context* ct,const Vec3 loc,const Color3 color) {
     int x = loc[0],
         y = loc[1];
-    if(x < 0 || x >= ct->_width ||
-       y < 0 || y >= ct->_height) {
+    if(x < ct->viewport.x || x >= ct->viewport.x+ct->viewport.width ||
+       y < ct->viewport.y || y >= ct->viewport.y+ct->viewport.height) {
         return;
     }
 
-    unsigned index = (unsigned)loc[1]*ct->_width+(unsigned)loc[0];
+    unsigned index = y*ct->_width+x;
     if(ct->depthEnabled) {
         if(ct->_depth[index] >= loc[2]) {
             return;
@@ -43,28 +50,44 @@ void rasterLine(Context* ct,const Varyings* begin,
                             const Varyings* end) {
     const Varyings* line[] = { begin,end };
     unsigned beginIndex = 0,endIndex = 1;
-    float x0 = begin->loc[0],y0 = begin->loc[1],
-          x1 = end->loc[0],  y1 = end->loc[1];
+    int x0 = begin->loc[0],y0 = begin->loc[1],
+        x1 = end->loc[0],  y1 = end->loc[1];
 
-    float diffx = x1-x0,diffy = y1-y0;
+    int diffx = x1-x0,diffy = y1-y0;
 
-    if(diffx == 0 && diffy == 0) {
-        return;
+    Axis axis = (abs(diffx) > abs(diffy) ? AXIS_X : AXIS_Y);
+
+    int startCoord,endCoord;
+    if(axis == AXIS_X) {
+        startCoord = x0;
+        endCoord   = x1;
+    } else {
+        startCoord = y0;
+        endCoord   = y1;
     }
 
-    int steps = (fabs(diffx) > fabs(diffy) ? diffx : diffy)+0.5;
+    /*
+    if(startCoord == endCoord) {
+        return;
+    }*/
     
-    float step   = 1.0/steps;
+    float step   = 1.0/(endCoord-startCoord);
     float factor = step > 0 ? 0 : 1,
           target = 1-factor;
 
     Varyings* varyings = createVaryings(begin->numAttributes,
                                         begin->attributes);
+    
+    startCoord = max(startCoord,ct->viewport.x);
+    endCoord   = min(endCoord,  ct->viewport.x+ct->viewport.width);
 
-    unsigned i;
-    unsigned numSteps = abs(steps);
-    for(i=0;i<numSteps;++i) {
-        interpolateBetween(varyings,factor+i*step,begin,end);
+    int istart = max(min(startCoord,endCoord),ct->viewport.x),
+        iend   = min(max(startCoord,endCoord),ct->viewport.x
+                                              +ct->viewport.width);
+
+    int i;
+    for(i=istart;i<iend;++i) {
+        interpolateAlongAxis(varyings,axis,i,begin,end);
 
         rasterPoint(ct,varyings);
     }
@@ -83,25 +106,27 @@ void rasterSpansBetween(Context* ct,const Varyings* a1,
     float starty = fmax(astarty,bstarty),
           endy   = fmin(aendy,bendy);
     
-    if(starty > endy) {
+    if(starty >= endy) {
         return;
     }
 
     float adiffy = a2->loc[1]-a1->loc[1],
           bdiffy = b2->loc[1]-b1->loc[1];
 
-    if(adiffy == 0 || bdiffy == 0) {
-        return;
+    float afactor,bfactor;
+    if(adiffy == 0) {
+        afactor = 0;
+    } else {
+        afactor = (starty-a1->loc[1])/adiffy;
     }
-
-    float afactor = (starty-a1->loc[1])/adiffy,
-          bfactor = (starty-b1->loc[1])/bdiffy;
+    if(bdiffy == 0) {
+        bfactor = 0;
+    } else {
+        bfactor = (starty-b1->loc[1])/bdiffy;
+    }
 
     float astep = 1/adiffy,
           bstep = 1/bdiffy;
-
-    float atarget = astep > 0 ? 1 : 0,
-          btarget = bstep > 0 ? 1 : 0;
 
     Varyings* a = createVaryings(a1->numAttributes,a1->attributes),
             * b = createVaryings(b1->numAttributes,b1->attributes);

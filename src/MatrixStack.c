@@ -37,6 +37,6 @@ Mat44* matStackTop(MatrixStack* stack) {
 
 void matStackMult(MatrixStack* stack,Mat44 mult) {
     Mat44* out = matStackTop(stack);
-    mat44Mult(*out,mult,*out);
+    mat44Mult(*out,*out,mult);
 }
 

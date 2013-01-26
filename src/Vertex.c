@@ -55,7 +55,7 @@ void vertAt(Vertex* out,VertexArray* arr,unsigned i) {
         out->loc = (Vec3*)(((void*)arr->locs)+locDiff);
     }
     if(arr->colors) {
-        out->color = (Color3*)(((void*)arr->colors)+locDiff);
+        out->color = (Color3*)(((void*)arr->colors)+colorDiff);
     }
     unsigned j;
     for(j=0;j<arr->numAttributes;++j) {

@@ -39,9 +39,9 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
 
     // Vertices are processed lazily, because it's rather expensive
     // to process each one
-    Varyings** varyings   = malloc(sizeof(Varyings*)*maxIndex);
+    Varyings** varyings   = malloc(sizeof(Varyings*)*(1+maxIndex));
     // For clipping
-    int*       isOnScreen = malloc(sizeof(int)*maxIndex);
+    int*       isOnScreen = malloc(sizeof(int)*(1+maxIndex));
     for(i=0;i<=maxIndex;++i) {
         varyings[i] = NULL;
         isOnScreen[i] = 0;
@@ -93,15 +93,15 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
         switch(shape) {
         case SHAPE_POINT: {
                 unsigned index = shapeIndices[0];
-                int clip = isOnScreen[index];
+                int clip = !isOnScreen[index];
                 if(!clip) {
                     rasterPoint(ct,varyings[index]);
                 }
             }
             break;
         case SHAPE_LINE: {
-                int clip = (isOnScreen[shapeIndices[0]] ||
-                            isOnScreen[shapeIndices[1]]);
+                int clip = !(isOnScreen[shapeIndices[0]] ||
+                             isOnScreen[shapeIndices[1]]);
                 if(!clip) {
                     rasterLine(ct,varyings[shapeIndices[0]],
                                   varyings[shapeIndices[1]]);
@@ -112,7 +112,7 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
                 int clip = !(isOnScreen[shapeIndices[0]] ||
                              isOnScreen[shapeIndices[1]] ||
                              isOnScreen[shapeIndices[2]]);
-
+                
                 if(!clip && ct->cullBackFace) {
                     const float* a = varyings[shapeIndices[0]]->loc,
                                * b = varyings[shapeIndices[1]]->loc,

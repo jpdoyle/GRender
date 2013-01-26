@@ -57,24 +57,39 @@ void freeVaryings(Varyings* varyings) {
 void interpolateBetween(Varyings* out,float factor,
                                             const Varyings* first,
                                             const Varyings* second) {
-    Vec4 firstLoc,secondLoc;
-    vec4Mult(firstLoc, first->loc, factor);
-    vec4Mult(secondLoc,second->loc,1-factor);
-    vec4Add(out->loc,firstLoc,secondLoc);
+    Vec4 diff;
+    vec4Sub(diff,second->loc,first->loc);
+    vec4Mult(diff,diff,factor);
+    vec4Add(out->loc,first->loc,diff);
 
-    Color4 firstColor,secondColor;
-    vec4Mult(firstColor, first->color, factor);
-    vec4Mult(secondColor,second->color,1-factor);
-    vec4Add(out->color,firstColor,secondColor);
+    Color4 colorDiff;
+    vec4Sub(colorDiff,second->color,first->color);
+    vec4Mult(colorDiff,colorDiff,factor);
+    vec4Add(out->color,first->color,colorDiff);
 
     float buf[256];
     unsigned i;
     for(i=0;i<out->numAttributes;++i) {
         unsigned n = out->attributes[i].numValues;
-        vecNMult(n,out->attributePtrs[i],first->attributePtrs[i],
-                                         factor);
-        vecNMult(n,buf,second->attributePtrs[i],1-factor);
-        vecNAdd(n,out->attributePtrs[i],out->attributePtrs[i],buf);
+        vecNSub(n,buf,second->attributePtrs[i],
+                      first->attributePtrs[i]);
+        vecNMult(n,buf,buf,factor);
+        vecNAdd(n,out->attributePtrs[i],first->attributePtrs[i],buf);
     }
+}
+
+void interpolateAlongAxis(Varyings* out,Axis axis,int coord,
+                                            const Varyings* first,
+                                            const Varyings* second) {
+    float startCoord = first->loc[axis],
+          endCoord   = second->loc[axis];
+    float factor;
+    if(startCoord == endCoord) {
+        factor = 1;
+    } else {
+        factor = (coord-startCoord)/(endCoord-startCoord);
+    }
+    interpolateBetween(out,factor,first,second);
+    out->loc[axis] = coord;
 }
 

@@ -13,6 +13,7 @@
 #define SECONDS_PER_FRAME (1.0/FRAMES_PER_SECOND)
 
 #define ROTATION_SPEED 45
+#define MOVEMENT_SPEED 2
 
 #define TITLE "Pipeline Test"
 
@@ -21,19 +22,32 @@ void shadeVertex(const Uniforms* uniforms,
                  Varyings* varyings) { 
     mat44MultVec3(varyings->loc,uniforms->modelViewProjection,
                                 *vertex->loc);
+    vec3Copy(varyings->color,*vertex->color);
 }
 
 void shadeFragment(const Uniforms* uniforms,
                    const Varyings* varyings,
                    Color3 out) {
-    out[0] = 0;
-    out[1] = 1;
-    out[2] = 0;
+    out[0] = varyings->color[0];
+    out[1] = varyings->color[1];
+    out[2] = varyings->color[2];
 }
 
-Vec3 verts[] = { { -1,-1, 0 },
-                 {  1,-1, 0 },
-                 {  0, 1, 0 } };
+typedef struct {
+    Vec3 loc;
+    Color3 color;
+} CustomVert;
+
+CustomVert verts[] = { { { -1.73,-1, 1.5 }, { 1, 0, 0 } },
+                       { {  1.73,-1, 1.5 }, { 0, 1, 0 } },
+                       { {  0,    2, 1.5 }, { 0, 0, 1 } },
+                       { {  0,    0,-1.5 }, { 1, 1, 1 } } };
+
+// draws the tetrahedron
+unsigned indices[] = { 0,1,2,
+                       1,0,3,
+                       0,2,3,
+                       2,1,3 };
 
 int main(void) {
     unsigned ticksPerFrame = 1000/FRAMES_PER_SECOND;
@@ -62,20 +76,28 @@ int main(void) {
     ct->fragShader = &shadeFragment;
 
     mat44Perspective(*matStackTop(ct->matrices[MATRIX_PROJECTION]),
-                     70,SCREEN_WIDTH/(float)SCREEN_HEIGHT,1,20);
+                     45,SCREEN_WIDTH/(float)SCREEN_HEIGHT,1,50);
+
+    //mat44Print(stdout,*matStackTop(ct->matrices[MATRIX_PROJECTION]));
 
     mat44Ident(*matStackTop(ct->matrices[MATRIX_MODELVIEW]));
 
     Mat44 translate;
-    mat44Translate(translate,0,0,-5);
-    matStackMult(ct->matrices[MATRIX_MODELVIEW],translate);
+    mat44Translate(translate,0,0,-3);
 
-    Mat44 localTransform;
-    mat44Ident(localTransform);
+    //mat44Print(stdout,*matStackTop(ct->matrices[MATRIX_MODELVIEW]));
+
+    Mat44 rotateHoriz,rotateVert;
+    mat44Ident(rotateHoriz);
+    mat44Ident(rotateVert);
+
+    //mat44Print(stdout,localTransform);
     
     VertexArray* varr = createVertArray(0,NULL);
-    varr->locs    = verts;
-    varr->locStep = sizeof(Vec3);
+    varr->locs      = &verts[0].loc;
+    varr->locStep   = sizeof(CustomVert);
+    varr->colors    = &verts[0].color;
+    varr->colorStep = sizeof(CustomVert);
 
     Color4 black;
     vec4Zero(black);
@@ -95,7 +117,7 @@ int main(void) {
                 running = 0;
             }
         }
-        
+
         clearBuffers(ct,black,-30);
         
         Uint8* keys = SDL_GetKeyState(NULL);
@@ -116,29 +138,56 @@ int main(void) {
             horizRot -= 1;
         }
 
+        int zDelta = 0,
+            xDelta = 0;
+        if(keys[SDLK_w]) { 
+            zDelta -= 1;
+        }
+        if(keys[SDLK_s]) {
+            zDelta += 1;
+        }
+        if(keys[SDLK_a]) { 
+            xDelta -= 1;
+        }
+        if(keys[SDLK_d]) {
+            xDelta += 1;
+        }
+
         Mat44 tmp;
+
+        if(xDelta || zDelta) {
+            float xDiff = xDelta*MOVEMENT_SPEED*SECONDS_PER_FRAME,
+                  zDiff = zDelta*MOVEMENT_SPEED*SECONDS_PER_FRAME;
+            mat44Translate(tmp,-xDiff,0,-zDiff);
+            mat44Mult(translate,tmp,translate);
+        }
+
         if(vertRot) {
             float vertDiff = vertRot*ROTATION_SPEED*SECONDS_PER_FRAME;
             mat44Rotate(tmp,vertDiff,-1,0,0);
-            mat44Mult(localTransform,tmp,localTransform);
+            mat44Mult(rotateVert,tmp,rotateVert);
+
+            //mat44Print(stdout,localTransform);
         }
         if(horizRot) {
             float horizDiff = horizRot*ROTATION_SPEED
                                       *SECONDS_PER_FRAME;
             mat44Rotate(tmp,horizDiff,0,1,0);
-            mat44Mult(localTransform,tmp,localTransform);
+            mat44Mult(translate,tmp,translate);
+
+            //mat44Print(stdout,localTransform);
         }
 
         matStackPush(ct->matrices[MATRIX_MODELVIEW]);
-        matStackMult(ct->matrices[MATRIX_MODELVIEW],localTransform);
+        matStackMult(ct->matrices[MATRIX_MODELVIEW],rotateVert);
+        matStackMult(ct->matrices[MATRIX_MODELVIEW],translate);
 
-        drawShape(ct,SHAPE_TRIANGLE,1,varr);
+        drawShapeIndexed(ct,SHAPE_TRIANGLE,4,varr,indices);
 
         matStackPop(ct->matrices[MATRIX_MODELVIEW]);
 
         SDL_BlitSurface(ct->surface,NULL,screen,NULL);
         SDL_Flip(screen);
-
 
         unsigned elapsedTime = SDL_GetTicks()-startTicks;
         unsigned currFps = 1000/elapsedTime;

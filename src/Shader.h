@@ -43,4 +43,14 @@ void interpolateBetween(Varyings* out,float factor,
                                             const Varyings* first,
                                             const Varyings* second);
 
+typedef enum {
+    AXIS_X,
+    AXIS_Y,
+    AXIS_Z
+} Axis;
+
+void interpolateAlongAxis(Varyings* out,Axis axis,int coord,
+                                            const Varyings* first,
+                                            const Varyings* second);
+
 #endif
