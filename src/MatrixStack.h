@@ -15,7 +15,7 @@ void freeMatrixStack(MatrixStack* stack);
 void matStackPush(MatrixStack* stack);
 void matStackPop(MatrixStack* stack);
 
-Mat44* matStackTop(MatrixStack* stack);
+float* matStackTop(MatrixStack* stack);
 void  matStackMult(MatrixStack* stack,Mat44 mat);
 
 #endif

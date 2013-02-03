@@ -58,17 +58,12 @@ void rasterLine(Context* ct,const Varyings* begin,
     Axis axis = (abs(diffx) > abs(diffy) ? AXIS_X : AXIS_Y);
 
     int startCoord,endCoord;
-    int viewportMin,viewportMax;
     if(axis == AXIS_X) {
         startCoord = x0;
         endCoord   = x1;
-        viewportMin = ct->viewport.x;
-        viewportMax = ct->viewport.x+ct->viewport.width;
     } else {
         startCoord = y0;
         endCoord   = y1;
-        viewportMin = ct->viewport.y;
-        viewportMax = ct->viewport.y+ct->viewport.height;
     }
 
     /*
@@ -83,8 +78,12 @@ void rasterLine(Context* ct,const Varyings* begin,
     Varyings* varyings = createVaryings(begin->numAttributes,
                                         begin->attributes);
     
-    int istart = max(min(startCoord,endCoord),viewportMin),
-        iend   = min(max(startCoord,endCoord),viewportMax);
+    startCoord = max(startCoord,ct->viewport.x);
+    endCoord   = min(endCoord,  ct->viewport.x+ct->viewport.width);
+
+    int istart = max(min(startCoord,endCoord),ct->viewport.x),
+        iend   = min(max(startCoord,endCoord),ct->viewport.x
+                                              +ct->viewport.width);
 
     int i;
     for(i=istart;i<=iend;++i) {

@@ -25,8 +25,8 @@ void drawShape(Context* ct,Shape shape,unsigned num,
 void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
                       VertexArray* vertices,unsigned* indices) {
     mat44Mult(ct->uniforms->modelViewProjection,
-              *matStackTop(ct->matrices[MATRIX_PROJECTION]),
-              *matStackTop(ct->matrices[MATRIX_MODELVIEW]));
+              matStackTop(ct->matrices[MATRIX_PROJECTION]),
+              matStackTop(ct->matrices[MATRIX_MODELVIEW]));
 
     unsigned i,j;
     unsigned indexCount = num*vertsPerShape[shape];

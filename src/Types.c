@@ -271,12 +271,12 @@ void mat44Frustum(Mat44 out,double left,double right,
 
     out[8]  = (right+left)/(right-left);
     out[9]  = (top+bottom)/(top-bottom);
-    out[10] = 2/(near-far);
+    out[10] = (near+far)/(near-far);
     out[11] = -1;
     
     out[12] = 0;
     out[13] = 0;
-    out[14] = (near+far)/(near-far);
+    out[14] = 2*far*near/(near-far);
     out[15] = 0;
 }
 

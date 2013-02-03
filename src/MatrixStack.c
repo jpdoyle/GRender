@@ -31,12 +31,12 @@ void matStackPop(MatrixStack* stack) {
     }
 }
 
-Mat44* matStackTop(MatrixStack* stack) {
-    return &stack->_stack[stack->_stackTop];
+float* matStackTop(MatrixStack* stack) {
+    return stack->_stack[stack->_stackTop];
 }
 
 void matStackMult(MatrixStack* stack,Mat44 mult) {
-    Mat44* out = matStackTop(stack);
-    mat44Mult(*out,*out,mult);
+    float* out = matStackTop(stack);
+    mat44Mult(out,out,mult);
 }
 
