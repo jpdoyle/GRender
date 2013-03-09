@@ -28,11 +28,12 @@ void plotPoint(Context* ct,const Vec3 loc,const Color3 color) {
 
     unsigned index = y*ct->_width+x;
     if(ct->depthEnabled) {
-        if(ct->_depth[index] >= loc[2]) {
+        if(ct->_depth[index] < loc[2]) {
             return;
         }
-        ct->_depth[index] = loc[2];
     }
+    ct->_depth[index] = loc[2];
+
     Uint8* pixels = ct->surface->pixels;
     unsigned i;
     for(i=0;i<3;++i) {

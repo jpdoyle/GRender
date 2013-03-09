@@ -67,7 +67,6 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
                 vec3Mult(varyings[index]->loc,
                          varyings[index]->loc,
                          1/varyings[index]->loc[3]);
-                varyings[index]->loc[3] = 1;
 
                 isOnScreen[index] = 
                                 (fabs(varyings[index]->loc[0]) < 1 &&

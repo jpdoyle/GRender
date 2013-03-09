@@ -246,7 +246,7 @@ int main(void) {
             printf("\nDebugging!\n\n");
         }
 
-        clearBuffers(ct,black,-2);
+        clearBuffers(ct,black,1);
         
         Uint8* keys = SDL_GetKeyState(NULL);
 
@@ -342,18 +342,23 @@ int main(void) {
                     matStackMult(ct->matrices[MATRIX_MODELVIEW],tmp);
                 }
 
+                //drawShapeIndexed(ct,SHAPE_TRIANGLE,4,varr,indices);
+                matStackPush(ct->matrices[MATRIX_MODELVIEW]);
+
+                    matStackMult(ct->matrices[MATRIX_MODELVIEW],gridTransform);
+                    
+                    drawShapeIndexed(ct,SHAPE_LINE,gridNumEdges,gridArr,gridIndices);
+
+                matStackPop(ct->matrices[MATRIX_MODELVIEW]);
+    
                 matStackPush(ct->matrices[MATRIX_MODELVIEW]);
     
                     matStackMult(ct->matrices[MATRIX_MODELVIEW],tetraTransform);
     
                     drawShapeIndexed(ct,SHAPE_TRIANGLE,4,varr,indices);
-    
+
                 matStackPop(ct->matrices[MATRIX_MODELVIEW]);
-                    
-                matStackMult(ct->matrices[MATRIX_MODELVIEW],gridTransform);
-    
-                drawShapeIndexed(ct,SHAPE_LINE,gridNumEdges,gridArr,gridIndices);
-    
+                
             matStackPop(ct->matrices[MATRIX_MODELVIEW]);
             
             debugged = 1;
