@@ -54,6 +54,17 @@ void freeVaryings(Varyings* varyings) {
     free(varyings);
 }
 
+void copyVaryings(Varyings* out,const Varyings* in) {
+    vec4Copy(out->loc,in->loc);
+    vec4Copy(out->color,in->color);
+    int i;
+    for(i=0;i<in->numAttributes;++i) {
+        vecNCopy(in->attributes[i].numValues,
+                 out->attributePtrs[i],
+                 in->attributePtrs[i]);
+    }
+}
+
 void interpolateBetween(Varyings* out,float factor,
                                             const Varyings* first,
                                             const Varyings* second) {

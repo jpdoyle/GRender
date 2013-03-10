@@ -39,6 +39,8 @@ Varyings* createVaryings(unsigned numAttributes,
                          const VertexAttribute* attributes);
 void freeVaryings(Varyings* varyings);
 
+void copyVaryings(Varyings* out,const Varyings* in);
+
 void interpolateBetween(Varyings* out,float factor,
                                             const Varyings* first,
                                             const Varyings* second);
