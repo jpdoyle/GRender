@@ -105,8 +105,8 @@ void rasterSpansBetween(Context* ct,const Varyings* a1,
           bstarty = fmin(b1->loc[1],b2->loc[1]),
           bendy   = fmax(b1->loc[1],b2->loc[1]);
 
-    float starty = fmax(astarty,bstarty),
-          endy   = fmin(aendy,bendy);
+    int starty = fmax(astarty,bstarty),
+        endy   = fmin(aendy,bendy);
     
     if(starty >= endy) {
         return;
@@ -132,11 +132,15 @@ void rasterSpansBetween(Context* ct,const Varyings* a1,
 
     Varyings* a = createVaryings(a1->numAttributes,a1->attributes),
             * b = createVaryings(b1->numAttributes,b1->attributes);
+    
+    int istart = max(min(starty,endy),ct->viewport.y),
+        iend   = min(max(starty,endy),ct->viewport.y
+                                      +ct->viewport.height-1);
 
-    unsigned y;
-    for(y=0;y<=endy-starty;++y) {
-        interpolateBetween(a,afactor+y*astep,a1,a2);
-        interpolateBetween(b,bfactor+y*bstep,b1,b2);
+    int i;
+    for(i=istart;i<=iend;++i) {
+        interpolateAlongAxis(a,AXIS_Y,i,a1,a2);
+        interpolateAlongAxis(b,AXIS_Y,i,b1,b2);
 
         rasterLine(ct,a,b);
     }
