@@ -81,13 +81,13 @@ void interpolateBetween(Varyings* out,float factor,
 void interpolateAlongAxis(Varyings* out,Axis axis,int coord,
                                             const Varyings* first,
                                             const Varyings* second) {
-    float startCoord = first->loc[axis],
-          endCoord   = second->loc[axis];
+    int startCoord = first->loc[axis],
+        endCoord   = second->loc[axis];
     float factor;
     if(startCoord == endCoord) {
         factor = 1;
     } else {
-        factor = (coord-startCoord)/(endCoord-startCoord);
+        factor = (coord-startCoord)/(float)(endCoord-startCoord);
     }
     interpolateBetween(out,factor,first,second);
     out->loc[axis] = coord;
