@@ -57,23 +57,24 @@ void freeVaryings(Varyings* varyings) {
 void interpolateBetween(Varyings* out,float factor,
                                             const Varyings* first,
                                             const Varyings* second) {
-    Vec4 firstTmp,secondTmp;
-    vec4Mult(firstTmp,first->loc,1-factor);
-    vec4Mult(secondTmp,second->loc,factor);
-    vec4Add(out->loc,firstTmp,secondTmp);
+    Vec4 diff;
+    vec4Sub(diff,second->loc,first->loc);
+    vec4Mult(diff,diff,factor);
+    vec4Add(out->loc,first->loc,diff);
 
-    Color4 colorTmp1,colorTmp2;
-    vec4Mult(colorTmp1,first->color,1-factor);
-    vec4Mult(colorTmp2,second->color,factor);
-    vec4Add(out->color,colorTmp1,colorTmp2);
+    Color4 colorDiff;
+    vec4Sub(colorDiff,second->color,first->color);
+    vec4Mult(colorDiff,colorDiff,factor);
+    vec4Add(out->color,first->color,colorDiff);
 
-    float buf1[256],buf2[256];
+    float buf[256];
     unsigned i;
     for(i=0;i<out->numAttributes;++i) {
         unsigned n = out->attributes[i].numValues;
-        vecNMult(n,buf1,first->attributePtrs[i],1-factor);
-        vecNMult(n,buf2,second->attributePtrs[i],factor);
-        vecNAdd(n,out->attributePtrs[i],buf1,buf2);
+        vecNSub(n,buf,second->attributePtrs[i],
+                      first->attributePtrs[i]);
+        vecNMult(n,buf,buf,factor);
+        vecNAdd(n,out->attributePtrs[i],first->attributePtrs[i],buf);
     }
 }
 
