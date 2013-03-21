@@ -19,12 +19,15 @@ void fswap(float* a,float* b) {
 }
 
 void plotPoint(Context* ct,const Vec3 loc,const Color3 color) {
+    //printf("Trying to plot\n");
     int x = loc[0],
         y = loc[1];
+    /*
     if(x < ct->viewport.x || x >= ct->viewport.x+ct->viewport.width ||
        y < ct->viewport.y || y >= ct->viewport.y+ct->viewport.height) {
         return;
-    }
+    }*/
+    //printf("Within Viewport\n");
 
     unsigned index = y*ct->_width+x;
     if(ct->depthEnabled) {
@@ -32,6 +35,7 @@ void plotPoint(Context* ct,const Vec3 loc,const Color3 color) {
             return;
         }
     }
+    //printf("plotting\n");
     ct->_depth[index] = loc[2];
 
     Uint8* pixels = ct->surface->pixels;
