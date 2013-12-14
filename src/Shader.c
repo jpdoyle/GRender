@@ -44,11 +44,25 @@ Varyings* createVaryings(unsigned numAttributes,
     return ret;
 }
 
+void copyVaryings(Varyings* out,const Varyings* src) {
+    vec4Copy(out->loc,src->loc);
+    vec3Copy(out->color,src->color);
+    unsigned i;
+    for(i=0;i<out->numAttributes;++i) {
+        unsigned n = out->attributes[i].numValues;
+        vecNCopy(n,out->attributePtrs[i],src->attributePtrs[i]);
+    }
+}
+
 void freeVaryings(Varyings* varyings) {
     if(!varyings) {
         return;
     }
     if(varyings->attributePtrs) {
+        unsigned i;
+        for(i=0;i<varyings->numAttributes;++i) {
+            free(varyings->attributePtrs[i]);
+        }
         free(varyings->attributePtrs);
     }
     free(varyings);

@@ -25,6 +25,7 @@ if(NOT SDL_FOUND)
 endif(NOT SDL_FOUND)
 
 link_libraries (
+   m
    ${SDL_LIBRARY}
    SDLmain
 )
