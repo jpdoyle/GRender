@@ -73,7 +73,7 @@ _ClipCode _clipLine(Axis axis,const Varyings* a,const Varyings* b,
     }
     interpolateBetween(outA,t1,a,b);
     interpolateBetween(outB,t2,a,b);
-    if(outA->loc[3] > 0 && outB->loc[3] > 0) {
+    if(outA->loc[3] > 1e-6 && outB->loc[3] > 1e-6) {
         printf("Interp with %f,%f\n",t1,t2);
         return _CLIP_BOTH;
     }
@@ -182,11 +182,8 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
     // Vertices are processed lazily, because it's rather expensive
     // to process each one
     Varyings** varyings   = malloc(sizeof(Varyings*)*(1+maxIndex));
-    // For clipping
-    int*       isOnScreen = malloc(sizeof(int)*(1+maxIndex));
     for(i=0;i<=maxIndex;++i) {
         varyings[i] = NULL;
-        isOnScreen[i] = 0;
     }
 
     unsigned shapeIndices[6];
@@ -228,18 +225,20 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
             }
             break;
         case SHAPE_LINE: {
-                printf("DRAWING LINE\n");
+                printf("DRAWING LINE: w = [%f,%f]\n",varyings[shapeIndices[0]]->loc[3],
+                                                     varyings[shapeIndices[1]]->loc[3]);
                 _ClipCode status = _clipLine(AXIS_X,varyings[shapeIndices[0]],
                                                     varyings[shapeIndices[1]],
                                                     tmp1[0],tmp1[1]);
                 if(status != _CLIP_ERR) {
-                    status = _clipLine(AXIS_Y,tmp1[0],tmp2[1],
+                    status = _clipLine(AXIS_Y,tmp1[0],tmp1[1],
                                               tmp1[2],tmp1[3]);
                     if(status != _CLIP_ERR) {
-                        status = _clipLine(AXIS_Z,tmp1[2],tmp2[3],
+                        status = _clipLine(AXIS_Z,tmp1[2],tmp1[3],
                                                   tmp1[0],tmp1[1]);
                         if(status != _CLIP_ERR) {
-                            printf("Drawing line\n");
+                            printf("Drawing line w = [%f,%f]\n",tmp1[0]->loc[3],
+                                                                tmp1[1]->loc[3]);
                             _viewportTransform(ct,tmp1[0],tmp1[2]);
                             _viewportTransform(ct,tmp1[1],tmp1[3]);
                             rasterLine(ct,tmp1[2],tmp1[3]);
@@ -301,5 +300,4 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
     }
     freeVaryings(tmp);
     free(varyings);
-    free(isOnScreen);
 }
