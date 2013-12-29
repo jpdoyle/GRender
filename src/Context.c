@@ -58,10 +58,12 @@ void freeContext(Context* ct) {
 void clearColorBuffer(Context* ct,const Color4 color) {
     unsigned i,j;
     Uint8* pixels = ct->surface->pixels;
+    Uint8 pixel[4];
+    for(i=0;i<3;++i) {
+        pixel[i] = 255*color[i]+0.5;
+    }
     for(i=0;i<ct->_width*ct->_height;++i) {
-        for(j=0;j<3;++j) {
-            pixels[i*3+j] = 255*color[j]+0.5;
-        }
+        memcpy(pixels+i*3,pixel,3);
     }
 }
 

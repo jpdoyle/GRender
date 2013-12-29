@@ -42,7 +42,7 @@ _ClipCode _clipLine(Axis axis,const Varyings* a,const Varyings* b,
         copyVaryings(outB,b);
         return _CLIP_NEITHER;
     }
-    printf("Clipping axis %d...\n",axis);
+    /*printf("Clipping axis %d...\n",axis);*/
     if(aInside || bInside) {
         const Varyings* fst = aInside ? a : b,
                       * snd = aInside ? b : a;
@@ -57,13 +57,13 @@ _ClipCode _clipLine(Axis axis,const Varyings* a,const Varyings* b,
         copyVaryings(aInside ? outA : outB,fst);
         return aInside ? _CLIP_SECOND : _CLIP_FIRST;
     }
-    printf("Clipping both...");
+    /*printf("Clipping both...");*/
     float t1 = (a->loc[3]+sgn*a->loc[axis]) /* w > -x */
                /(a->loc[3]+sgn*a->loc[axis]-b->loc[3]-sgn*b->loc[axis]),
           t2 = (a->loc[3]-sgn*a->loc[axis]) /* w > x */
                /(sgn*b->loc[axis]-b->loc[3]+a->loc[3]-sgn*a->loc[axis]);
     if((t1 < 0 || t1 > 1) && (t2 < 0 || t2 > 1)) {
-        printf("Beyond range err: %f,%f\n",t1,t2);
+        /*printf("Beyond range err: %f,%f\n",t1,t2);*/
         return _CLIP_ERR;
     }
     if(t1 > t2) {
@@ -74,7 +74,7 @@ _ClipCode _clipLine(Axis axis,const Varyings* a,const Varyings* b,
     interpolateBetween(outA,t1,a,b);
     interpolateBetween(outB,t2,a,b);
     if(outA->loc[3] > 1e-6 && outB->loc[3] > 1e-6) {
-        printf("Interp with %f,%f\n",t1,t2);
+        /*printf("Interp with %f,%f\n",t1,t2);*/
         return _CLIP_BOTH;
     }
     return _CLIP_ERR;
@@ -94,7 +94,7 @@ int _clipVaryings(Axis axis,unsigned num,const Varyings ** in,Varyings** out) {
         _ClipCode code = _clipLine(axis,a,b,tmpA,tmpB);
         switch(code) {
         case _CLIP_ERR:
-            printf("line clip error\n");
+            /*printf("line clip error\n");*/
             continue;
             break;
         case _CLIP_NEITHER:
@@ -123,7 +123,7 @@ int _clipTriangle(const Varyings* a,const Varyings* b,const Varyings* c,Varyings
     int n = 3;
     const Varyings * arr[] = { a,b,c };
     n = _clipVaryings(AXIS_X,n,arr,out);
-    printf("X-clipped to %d\n",n);
+    /*printf("X-clipped to %d\n",n);*/
     const Varyings** tmp2 = malloc(sizeof(const Varyings*)*n);
     int i;
     if(n) {
@@ -131,7 +131,7 @@ int _clipTriangle(const Varyings* a,const Varyings* b,const Varyings* c,Varyings
             tmp2[i] = out[i];
         }
         n = _clipVaryings(AXIS_Y,n,tmp2,tmp); 
-        printf("Y-clipped to %d\n",n);
+        /*printf("Y-clipped to %d\n",n);*/
     }
     if(n) {
         free(tmp2);
@@ -140,7 +140,7 @@ int _clipTriangle(const Varyings* a,const Varyings* b,const Varyings* c,Varyings
             tmp2[i] = tmp[i];
         }
         n = _clipVaryings(AXIS_Z,n,tmp2,out); 
-        printf("Z-clipped to %d\n",n);
+        /*printf("Z-clipped to %d\n",n);*/
     }
     free(tmp2);
     return n;
@@ -225,8 +225,8 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
             }
             break;
         case SHAPE_LINE: {
-                printf("DRAWING LINE: w = [%f,%f]\n",varyings[shapeIndices[0]]->loc[3],
-                                                     varyings[shapeIndices[1]]->loc[3]);
+                /*printf("DRAWING LINE: w = [%f,%f]\n",varyings[shapeIndices[0]]->loc[3],*/
+                                                     /*varyings[shapeIndices[1]]->loc[3]);*/
                 _ClipCode status = _clipLine(AXIS_X,varyings[shapeIndices[0]],
                                                     varyings[shapeIndices[1]],
                                                     tmp1[0],tmp1[1]);
@@ -237,8 +237,8 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
                         status = _clipLine(AXIS_Z,tmp1[2],tmp1[3],
                                                   tmp1[0],tmp1[1]);
                         if(status != _CLIP_ERR) {
-                            printf("Drawing line w = [%f,%f]\n",tmp1[0]->loc[3],
-                                                                tmp1[1]->loc[3]);
+                            /*printf("Drawing line w = [%f,%f]\n",tmp1[0]->loc[3],*/
+                                                                /*tmp1[1]->loc[3]);*/
                             _viewportTransform(ct,tmp1[0],tmp1[2]);
                             _viewportTransform(ct,tmp1[1],tmp1[3]);
                             rasterLine(ct,tmp1[2],tmp1[3]);
@@ -246,15 +246,15 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
                     }
                 }
                 if(status == _CLIP_ERR) {
-                    printf("Clip error\n");
+                    /*printf("Clip error\n");*/
                 }
             }
             break;
         case SHAPE_TRIANGLE: {
-                printf("DRAWING TRI\n");
+                /*printf("DRAWING TRI\n");*/
                 int n = _clipTriangle(varyings[shapeIndices[0]],varyings[shapeIndices[1]],
                                       varyings[shapeIndices[2]],tmp1,tmp2);
-                printf("Clipped to %d verts\n",n);
+                /*printf("Clipped to %d verts\n",n);*/
                 int k;
                 for(k=0;k<n;++k) {
                     _viewportTransform(ct,tmp2[k],tmp1[k]);
@@ -277,7 +277,7 @@ void drawShapeIndexed(Context* ct,Shape shape,unsigned num,
                 }
 
                 if(!clip) {
-                    printf("Drawing %d verts\n",n);
+                    /*printf("Drawing %d verts\n",n);*/
                     for(k=1;k<n-1;++k) {
                         rasterTriangle(ct,tmp1[0],tmp1[k],tmp1[k+1]);
                     }
