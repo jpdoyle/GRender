@@ -26,6 +26,9 @@ void vecNAdd   (unsigned n,float* out,const float* a,const float* b);
 void vecNSub   (unsigned n,float* out,const float* a,const float* b);
 void vecNMult  (unsigned n,float* out,const float* v,float s);
 
+void vecNInterpolate(unsigned n,float* out,float s,const float* a,
+                                                   const float* b);
+
 float vecNDotProd   (unsigned n,const float* a,const float* b);
 float vecNMagSquared(unsigned n,const float* v);
 float vecNMag       (unsigned n,const float* v);
@@ -43,6 +46,8 @@ void vecNNormalize(unsigned n,float* out,const float* in);
 #define vec3Sub(out,a,b)   vecNSub   (3,(out),(a),(b))
 #define vec3Mult(out,v,s)  vecNMult  (3,(out),(v),(s))
 
+#define vec3Interpolate(out,s,a,b)  vecNInterpolate(3,(out),(s),(a),(b))
+
 #define vec3DotProd(a,b)  vecNDotProd   (3,(a),(b))
 #define vec3MagSquared(v) vecNMagSquared(3,(v))
 #define vec3Mag(v)        vecNMag       (3,(v))
@@ -57,6 +62,8 @@ void vecNNormalize(unsigned n,float* out,const float* in);
 #define vec4Add(out,a,b)   vecNAdd   (4,(out),(a),(b))
 #define vec4Sub(out,a,b)   vecNSub   (4,(out),(a),(b))
 #define vec4Mult(out,v,s)  vecNMult  (4,(out),(v),(s))
+
+#define vec4Interpolate(out,s,a,b)  vecNInterpolate(4,(out),(s),(a),(b))
 
 #define vec4DotProd(a,b)  vecNDotProd   (4,(a),(b))
 #define vec4MagSquared(v) vecNMagSquared(4,(v))

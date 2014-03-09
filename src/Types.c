@@ -68,6 +68,14 @@ void vecNMult(unsigned n,float* out,const float* v,float s) {
     }
 }
 
+void vecNInterpolate(unsigned n,float* out,float s,const float* a,
+                                                   const float* b) {
+    float diff[64];
+    vecNSub(n,diff,a,b);
+    vecNMult(n,diff,diff,s);
+    vecNAdd(n,out,a,diff);
+}
+
 
 float vecNDotProd(unsigned n,const float* a,const float* b) {
     float ret = 0;
