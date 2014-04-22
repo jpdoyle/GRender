@@ -39,7 +39,6 @@ set(SOURCES
     src/Shader.c
     src/Vertex.c
     src/Raster.c
-    src/Types.c
     src/main.c
 )
 add_executable(

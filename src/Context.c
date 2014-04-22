@@ -58,19 +58,21 @@ void freeContext(Context* ct) {
 void clearColorBuffer(Context* ct,const Color4 color) {
     unsigned i,j;
     Uint8* pixels = ct->surface->pixels;
+    Uint8* end    = pixels + 3*(ct->_width*ct->_height);
     Uint8 pixel[4];
     for(i=0;i<3;++i) {
         pixel[i] = 255*color[i]+0.5;
     }
-    for(i=0;i<ct->_width*ct->_height;++i) {
-        memcpy(pixels+i*3,pixel,3);
+    for(;pixels!=end;++pixels) {
+        memcpy(pixels,pixel,3);
     }
 }
 
 void clearDepthBuffer(Context* ct,float depth) {
-    unsigned i;
-    for(i=0;i<ct->_width*ct->_height;++i) {
-        ct->_depth[i] = depth;
+    float* begin = ct->_depth,
+         * end   = begin + (ct->_width*ct->_height);
+    for(;begin!=end;++begin) {
+        *begin = depth;
     }
 }
 

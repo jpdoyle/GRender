@@ -368,13 +368,14 @@ int main(void) {
         SDL_Flip(screen);
 
         unsigned elapsedTime = SDL_GetTicks()-startTicks;
+        /* printf("%d ms/frame\n",elapsedTime); */
         unsigned currFps = 1000/elapsedTime;
         if(currFps > FRAMES_PER_SECOND) {
             currFps = FRAMES_PER_SECOND;
         }
 
         fps = fpsLerp*currFps+(1-fpsLerp)*fps;
-        sprintf(title,"%s %u FPS",TITLE,(unsigned)(fps+0.5));
+        /* sprintf(title,"%s %u FPS",TITLE,(unsigned)(fps+0.5)); */
         SDL_WM_SetCaption(title,NULL);
 
         if(elapsedTime < ticksPerFrame) {
