@@ -40,15 +40,23 @@ Varyings* createVaryings(unsigned numAttributes,
 void copyVaryings(Varyings* out,const Varyings* src);
 void freeVaryings(Varyings* varyings);
 
+void addVaryings(Varyings* out,const Varyings* a,const Varyings* b);
+void subVaryings(Varyings* out,const Varyings* a,const Varyings* b);
+void multVaryings(Varyings* out,const Varyings* v,float s);
+
 void interpolateBetween(Varyings* out,float factor,
-                                            const Varyings* first,
-                                            const Varyings* second);
+                                      const Varyings* first,
+                                      const Varyings* second);
 
 typedef enum {
     AXIS_X,
     AXIS_Y,
     AXIS_Z
 } Axis;
+
+float axisInterpStep(Axis axis,int firstCoord,
+                               const Varyings* first,
+                               const Varyings* second);
 
 void interpolateAlongAxis(Varyings* out,Axis axis,int coord,
                                             const Varyings* first,

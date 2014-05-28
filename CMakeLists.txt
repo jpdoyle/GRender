@@ -54,6 +54,8 @@ add_custom_command(
                                            ${PROJECT_BINARY_DIR}/data
 )
 
+set(CMAKE_CXX_FLAGS "-O2 -Wall -Werror ${CMAKE_CXX_FLAGS}")
+
 # Install target
 install(TARGETS ${EXECUTABLE_NAME} DESTINATION bin)
 

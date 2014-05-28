@@ -68,25 +68,66 @@ void freeVaryings(Varyings* varyings) {
     free(varyings);
 }
 
+#define mapUnVaryings(fn,out,vec,...) do { \
+        Varyings* o__ = (out);    \
+        const Varyings* v__ = (vec); \
+        vec4##fn(o__->loc,v__->loc,##__VA_ARGS__); \
+        vec3##fn(o__->color,v__->color,##__VA_ARGS__); \
+        unsigned i; \
+        for(i=0;i<o__->numAttributes;++i) { \
+            unsigned n = o__->attributes[i].numValues; \
+            vecN##fn(n,o__->attributePtrs[i], \
+                       v__->attributePtrs[i], \
+                       ##__VA_ARGS__); \
+        } \
+    } while(0)
+
+#define mapBinVaryings(fn,out,first,second,...) do { \
+        Varyings* o__ = (out);    \
+        const Varyings* a__ = (first),  \
+                      * b__ = (second); \
+        vec4##fn(o__->loc,##__VA_ARGS__,a__->loc,b__->loc); \
+        vec3##fn(o__->color,##__VA_ARGS__,a__->color,b__->color); \
+        unsigned i; \
+        for(i=0;i<o__->numAttributes;++i) { \
+            unsigned n = o__->attributes[i].numValues; \
+            (vecN##fn)(n,o__->attributePtrs[i], \
+                       ##__VA_ARGS__, \
+                       a__->attributePtrs[i], \
+                       b__->attributePtrs[i]); \
+        } \
+    } while(0)
+
+void addVaryings(Varyings* out,const Varyings* a,const Varyings* b) {
+    mapBinVaryings(Add,out,a,b);
+}
+void subVaryings(Varyings* out,const Varyings* a,const Varyings* b) {
+    mapBinVaryings(Sub,out,a,b);
+}
+void multVaryings(Varyings* out,const Varyings* v,float s) {
+    mapUnVaryings(Mult,out,v,s);
+}
 void interpolateBetween(Varyings* out,float factor,
-                                            const Varyings* first,
-                                            const Varyings* second) {
-    vec4Interpolate(out->loc,factor,first->loc,second->loc);
+                                      const Varyings* first,
+                                      const Varyings* second) {
+    mapBinVaryings(Interpolate,out,first,second,factor);
+}
 
-    vec4Interpolate(out->color,factor,first->color,second->color);
-
-    unsigned i;
-    for(i=0;i<out->numAttributes;++i) {
-        unsigned n = out->attributes[i].numValues;
-        vecNInterpolate(n,out->attributePtrs[i],factor,
-                          first->attributePtrs[i],
-                          second->attributePtrs[i]);
+float axisInterpStep(Axis axis,int firstCoord,
+                               const Varyings* first,
+                               const Varyings* second) {
+    int startCoord = first->loc[axis],
+        endCoord   = second->loc[axis];
+    float factor;
+    if(startCoord == endCoord) {
+        return 1;
     }
+    return (firstCoord-startCoord)/(float)(endCoord-startCoord);
 }
 
 void interpolateAlongAxis(Varyings* out,Axis axis,int coord,
-                                            const Varyings* first,
-                                            const Varyings* second) {
+                                        const Varyings* first,
+                                        const Varyings* second) {
     int startCoord = first->loc[axis],
         endCoord   = second->loc[axis];
     float factor;

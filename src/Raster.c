@@ -33,12 +33,17 @@ void plotPoint(Context* ct,const Vec3 loc,const Color3 color) {
         }
     }
     ct->_depth[index] = loc[2];
+    Uint8* c = ct->surface->pixels + index*3;
+    c[0] = 255*color[0]+0.5;
+    c[1] = 255*color[1]+0.5;
+    c[2] = 255*color[2]+0.5;
 
-    Uint8* pixels = ct->surface->pixels;
-    unsigned i;
-    for(i=0;i<3;++i) {
-        pixels[index*3+i] = 255*color[i]+0.5;
-    }
+    /* memcpy(ct->surface->pixels + index*3,c,3); */
+    /* Uint8* pixels = ct->surface->pixels; */
+    /* unsigned i; */
+    /* for(i=0;i<3;++i) { */
+    /*     pixels[index*3+i] = 255*color[i]+0.5; */
+    /* } */
 }
 
 void rasterPoint(Context* ct,const Varyings* varyings) {
@@ -76,24 +81,40 @@ void rasterLine(Context* ct,const Varyings* begin,
     if(startCoord == endCoord) {
         return;
     }*/
-    
+
     float step   = 1.0/(endCoord-startCoord);
     float factor = step > 0 ? 0 : 1,
           target = 1-factor;
 
     Varyings* varyings = createVaryings(begin->numAttributes,
-                                        begin->attributes);
-    
+                                        begin->attributes),
+            * diff = createVaryings(begin->numAttributes,
+                                    begin->attributes),
+            * ptStep = createVaryings(begin->numAttributes,
+                                      begin->attributes);
     int istart = max(min(startCoord,endCoord),viewportMin),
         iend   = min(max(startCoord,endCoord),viewportMax);
 
+    subVaryings(diff,end,begin);
+    float stepFactor;/* = axisInterpStep(axis,istart+1,begin,end);*/
+    /* multVaryings(ptStep,diff,stepFactor); */
+
+    /* printf("Starting line render: \n"); */
+    /* float prevStep = 0; */
     int i;
     for(i=istart;i<=iend;++i) {
-        interpolateAlongAxis(varyings,axis,i,begin,end);
-
+        stepFactor = axisInterpStep(axis,i,begin,end);
+        /* printf("%f (%+f), ",stepFactor,stepFactor-prevStep); */
+        /* prevStep = stepFactor; */
+        multVaryings(ptStep,diff,stepFactor);
+        addVaryings(varyings,begin,ptStep);
+        varyings->loc[axis] = i;
         rasterPoint(ct,varyings);
     }
+    /* printf("done.\n"); */
     freeVaryings(varyings);
+    freeVaryings(diff);
+    freeVaryings(ptStep);
 }
 
 void rasterSpansBetween(Context* ct,const Varyings* a1,
@@ -107,7 +128,7 @@ void rasterSpansBetween(Context* ct,const Varyings* a1,
 
     int starty = fmax(astarty,bstarty),
         endy   = fmin(aendy,bendy);
-    
+
     if(starty >= endy) {
         return;
     }
@@ -132,21 +153,43 @@ void rasterSpansBetween(Context* ct,const Varyings* a1,
 
     Varyings* a = createVaryings(a1->numAttributes,a1->attributes),
             * b = createVaryings(b1->numAttributes,b1->attributes);
-    
+
     int istart = max(min(starty,endy),ct->viewport.y),
         iend   = min(max(starty,endy),ct->viewport.y
                                       +ct->viewport.height-1);
+    Varyings* adiff = createVaryings(a->numAttributes,a->attributes),
+            * bdiff = createVaryings(b->numAttributes,b->attributes),
+            * aoffset = createVaryings(a->numAttributes,a->attributes),
+            * boffset = createVaryings(b->numAttributes,b->attributes);
+    subVaryings(adiff,a2,a1);
+    subVaryings(bdiff,b2,b1);
 
     int i;
     for(i=istart;i<=iend;++i) {
-        interpolateAlongAxis(a,AXIS_Y,i,a1,a2);
-        interpolateAlongAxis(b,AXIS_Y,i,b1,b2);
+        float afactor = axisInterpStep(AXIS_Y,i,a1,a2),
+              bfactor = axisInterpStep(AXIS_Y,i,b1,b2);
+        /* printf("%f (%+f), ",stepFactor,stepFactor-prevStep); */
+        /* prevStep = stepFactor; */
+
+        multVaryings(aoffset,adiff,afactor);
+        multVaryings(boffset,bdiff,bfactor);
+        addVaryings(a,a1,aoffset);
+        addVaryings(b,b1,boffset);
+        a->loc[AXIS_Y] = i;
+        b->loc[AXIS_Y] = i;
+
+        /* interpolateAlongAxis(a,AXIS_Y,i,a1,a2); */
+        /* interpolateAlongAxis(b,AXIS_Y,i,b1,b2); */
 
         rasterLine(ct,a,b);
     }
 
     freeVaryings(a);
+    freeVaryings(adiff);
+    freeVaryings(aoffset);
     freeVaryings(b);
+    freeVaryings(bdiff);
+    freeVaryings(boffset);
 }
 
 void rasterTriangle(Context* ct,const Varyings* a,

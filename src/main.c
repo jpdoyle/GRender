@@ -375,7 +375,8 @@ int main(void) {
         }
 
         fps = fpsLerp*currFps+(1-fpsLerp)*fps;
-        /* sprintf(title,"%s %u FPS",TITLE,(unsigned)(fps+0.5)); */
+        sprintf(title,"%s %u/%u ms%s",TITLE,elapsedTime,ticksPerFrame,
+                                      elapsedTime > ticksPerFrame ? "!!":"");
         SDL_WM_SetCaption(title,NULL);
 
         if(elapsedTime < ticksPerFrame) {
