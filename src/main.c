@@ -246,7 +246,9 @@ int main(void) {
             printf("\nDebugging!\n\n");
         }
 
-        clearBuffers(ct,black,1);
+        /* clearColorBuffer(ct); */
+        /* fillDepthBuffer(ct,1); */
+        fillBuffers(ct,black,1);
         
         Uint8* keys = SDL_GetKeyState(NULL);
 

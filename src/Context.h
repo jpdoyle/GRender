@@ -47,8 +47,12 @@ typedef struct {
 Context* createContext(unsigned width,unsigned height);
 void freeContext(Context* ct);
 
-void clearColorBuffer(Context* ct,const Color4 color);
-void clearDepthBuffer(Context* ct,float depth);
-void clearBuffers(Context* ct,const Color4 color,float depth);
+void clearColorBuffer(Context* ct);
+void clearDepthBuffer(Context* ct);
+void clearBuffers(Context* ct);
+
+void fillColorBuffer(Context* ct,const Color4 color);
+void fillDepthBuffer(Context* ct,float depth);
+void fillBuffers(Context* ct,const Color4 color,float depth);
 
 #endif

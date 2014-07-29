@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(GRender)
+project(grender)
 
 # Enable debug symbols by default
 if(CMAKE_BUILD_TYPE STREQUAL "")
@@ -8,9 +8,9 @@ endif()
 # (you can also set it on the command line: -D CMAKE_BUILD_TYPE=Release)
 
 # Set version information in a config.h file
-set(GRender_VERSION_MAJOR 0)
-set(GRender_VERSION_MINOR 1)
-set(GRender_VERSION_PATCH 0)
+set(grender_VERSION_MAJOR 0)
+set(grender_VERSION_MINOR 1)
+set(grender_VERSION_PATCH 0)
 configure_file(
   "${PROJECT_SOURCE_DIR}/src/config.h.in"
   "${PROJECT_BINARY_DIR}/config/config.h"
@@ -31,7 +31,7 @@ link_libraries (
 )
 
 # Define sources and executable
-set(EXECUTABLE_NAME "grender_test")
+set(EXECUTABLE_NAME "grender")
 set(SOURCES
     src/Context.c
     src/Draw.c
@@ -48,7 +48,7 @@ add_executable(
     ${SOURCES}
 )
 add_custom_command(
-    TARGET SomethingLikeAn
+    TARGET grender
     COMMAND
         ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/data 
                                            ${PROJECT_BINARY_DIR}/data
@@ -62,6 +62,6 @@ install(TARGETS ${EXECUTABLE_NAME} DESTINATION bin)
 # CPack packaging
 include(InstallRequiredSystemLibraries)
 #set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_SOURCE_DIR}/COPYING")
-set(CPACK_PACKAGE_VERSION_MAJOR "${SomethingLikeAn_VERSION_MAJOR}")
-set(CPACK_PACKAGE_VERSION_MINOR "${SomethingLikeAn_VERSION_MINOR}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${grender_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${grender_VERSION_MINOR}")
 include(CPack)

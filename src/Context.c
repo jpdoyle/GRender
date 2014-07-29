@@ -55,7 +55,24 @@ void freeContext(Context* ct) {
     free(ct);
 }
 
-void clearColorBuffer(Context* ct,const Color4 color) {
+void clearColorBuffer(Context* ct) {
+    Uint8* pixels = ct->surface->pixels;
+    size_t n = 3*(ct->_width*ct->_height);
+    memset(pixels,0,n);
+}
+
+void clearDepthBuffer(Context* ct) {
+    float* begin = ct->_depth;
+    size_t n = ct->_width*ct->_height;
+    memset(begin,0,n);
+}
+
+void clearBuffers(Context* ct) {
+    clearColorBuffer(ct);
+    clearDepthBuffer(ct);
+}
+
+void fillColorBuffer(Context* ct,const Color4 color) {
     unsigned i,j;
     Uint8* pixels = ct->surface->pixels;
     Uint8* end    = pixels + 3*(ct->_width*ct->_height);
@@ -63,12 +80,12 @@ void clearColorBuffer(Context* ct,const Color4 color) {
     for(i=0;i<3;++i) {
         pixel[i] = 255*color[i]+0.5;
     }
-    for(;pixels!=end;++pixels) {
+    for(;pixels!=end;pixels += 3) {
         memcpy(pixels,pixel,3);
     }
 }
 
-void clearDepthBuffer(Context* ct,float depth) {
+void fillDepthBuffer(Context* ct,float depth) {
     float* begin = ct->_depth,
          * end   = begin + (ct->_width*ct->_height);
     for(;begin!=end;++begin) {
@@ -76,8 +93,8 @@ void clearDepthBuffer(Context* ct,float depth) {
     }
 }
 
-void clearBuffers(Context* ct,const Color4 color,float depth) {
-    clearColorBuffer(ct,color);
-    clearDepthBuffer(ct,depth);
+void fillBuffers(Context* ct,const Color4 color,float depth) {
+    fillColorBuffer(ct,color);
+    fillDepthBuffer(ct,depth);
 }
 

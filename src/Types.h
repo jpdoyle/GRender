@@ -36,12 +36,31 @@ INLINE void vecNZero(unsigned n,float* out) {
         out[i] = 0;
     }
 }
+INLINE void vec3Zero(float* out) {
+    out[0] = out[1] = out[2] = 0;
+}
+INLINE void vec4Zero(float* out) {
+    out[0] = out[1] = out[2] = out[3] = 0;
+}
+
 INLINE void vecNCopy(unsigned n,float* out,const float* in) {
     unsigned i;
     for(i=0;i<n;++i) {
         out[i] = in[i];
     }
 }
+INLINE void vec3Copy(float* out,const float* in) {
+    out[0] = in[0];
+    out[1] = in[1];
+    out[2] = in[2];
+}
+INLINE void vec4Copy(float* out,const float* in) {
+    out[0] = in[0];
+    out[1] = in[1];
+    out[2] = in[2];
+    out[3] = in[3];
+}
+
 INLINE void vecNSwap(unsigned n,float* a,  float* b) {
     unsigned i;
     float tmp;
@@ -51,17 +70,35 @@ INLINE void vecNSwap(unsigned n,float* a,  float* b) {
         b[i] = tmp;
     }
 }
+
 INLINE void vecNNegate(unsigned n,float* out,const float* in) {
     unsigned i;
     for(i=0;i<n;++i) {
         out[i] = -in[i];
     }
 }
+INLINE void vec3Negate(float* out,const float* in) {
+    out[0] = -in[0];
+    out[1] = -in[1];
+    out[2] = -in[2];
+}
+
 INLINE void vecNAdd(unsigned n,float* out,const float* a,const float* b) {
     unsigned i;
     for(i=0;i<n;++i) {
         out[i] = a[i] + b[i];
     }
+}
+INLINE void vec3Add(float* out,const float* a,const float* b) {
+    out[0] = a[0] + b[0];
+    out[1] = a[1] + b[1];
+    out[2] = a[2] + b[2];
+}
+INLINE void vec4Add(float* out,const float* a,const float* b) {
+    out[0] = a[0] + b[0];
+    out[1] = a[1] + b[1];
+    out[2] = a[2] + b[2];
+    out[3] = a[3] + b[3];
 }
 INLINE void vecNSub(unsigned n,float* out,const float* a,const float* b) {
     unsigned i;
@@ -74,6 +111,17 @@ INLINE void vecNMult(unsigned n,float* out,const float* v,float s) {
     for(i=0;i<n;++i) {
         out[i] = v[i] * s;
     }
+}
+INLINE void vec3Mult(float* out,const float* v,float s) {
+    out[0] = v[0] * s;
+    out[1] = v[1] * s;
+    out[2] = v[2] * s;
+}
+INLINE void vec4Mult(float* out,const float* v,float s) {
+    out[0] = v[0] * s;
+    out[1] = v[1] * s;
+    out[2] = v[2] * s;
+    out[3] = v[3] * s;
 }
 
 INLINE void vecNInterpolate(unsigned n,float* out,float s,
@@ -106,13 +154,13 @@ INLINE void vecNNormalize(unsigned n,float* out,const float* in) {
 #define toVec3(out,sizeIn,in) toVecN(3,(out),(sizeIn),(in))
 #define toVec4(out,sizeIn,in) toVecN(4,(out),(sizeIn),(in))
 
-#define vec3Zero(out)      vecNZero  (3,(out))
-#define vec3Copy(out,in)   vecNCopy  (3,(out),(in))
+/* #define vec3Zero(out)      vecNZero  (3,(out)) */
+/* #define vec3Copy(out,in)   vecNCopy  (3,(out),(in)) */
 #define vec3Swap(a,b)      vecNSwap  (3,(a),(b))
-#define vec3Negate(out,in) vecNNegate(3,(out),(in))
-#define vec3Add(out,a,b)   vecNAdd   (3,(out),(a),(b))
+/* #define vec3Negate(out,in) vecNNegate(3,(out),(in)) */
+/* #define vec3Add(out,a,b)   vecNAdd   (3,(out),(a),(b)) */
 #define vec3Sub(out,a,b)   vecNSub   (3,(out),(a),(b))
-#define vec3Mult(out,v,s)  vecNMult  (3,(out),(v),(s))
+/* #define vec3Mult(out,v,s)  vecNMult  (3,(out),(v),(s)) */
 
 #define vec3Interpolate(out,s,a,b)  vecNInterpolate(3,(out),(s),(a),(b))
 
@@ -122,14 +170,14 @@ INLINE void vecNNormalize(unsigned n,float* out,const float* in) {
 
 #define vec3Normalize(v)  vecNNormalize (3,(v))
 
-#define vec4Zero(out)      vecNZero  (4,(out))
+/* #define vec4Zero(out)      vecNZero  (4,(out)) */
 #define vec4Ident(out)     vecNIndent(4,(out))
-#define vec4Copy(out,in)   vecNCopy  (4,(out),(in))
+/* #define vec4Copy(out,in)   vecNCopy  (4,(out),(in)) */
 #define vec4Swap(a,b)      vecNSwap  (4,(a),(b))
-#define vec4Negate(out,in) vecNNegate(4,(out),(in))
-#define vec4Add(out,a,b)   vecNAdd   (4,(out),(a),(b))
+/* #define vec4Negate(out,in) vecNNegate(4,(out),(in)) */
+/* #define vec4Add(out,a,b)   vecNAdd   (4,(out),(a),(b)) */
 #define vec4Sub(out,a,b)   vecNSub   (4,(out),(a),(b))
-#define vec4Mult(out,v,s)  vecNMult  (4,(out),(v),(s))
+/* #define vec4Mult(out,v,s)  vecNMult  (4,(out),(v),(s)) */
 
 #define vec4Interpolate(out,s,a,b)  vecNInterpolate(4,(out),(s),(a),(b))
 
