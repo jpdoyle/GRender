@@ -72,6 +72,19 @@ void clearBuffers(Context* ct) {
     clearDepthBuffer(ct);
 }
 
+void logMemFill(void* src,size_t srcLen,void* dst,size_t numRepeats) {
+    memcpy(dst,src,srcLen);
+    size_t n = 1;
+    while(n < numRepeats) {
+        size_t len = n;
+        if(n+len > numRepeats) {
+            len = numRepeats-n;
+        }
+        memcpy(dst+(n*srcLen),dst,len*srcLen);
+        n += len;
+    }
+}
+
 void fillColorBuffer(Context* ct,const Color4 color) {
     unsigned i,j;
     Uint8* pixels = ct->surface->pixels;
@@ -80,17 +93,20 @@ void fillColorBuffer(Context* ct,const Color4 color) {
     for(i=0;i<3;++i) {
         pixel[i] = 255*color[i]+0.5;
     }
-    for(;pixels!=end;pixels += 3) {
-        memcpy(pixels,pixel,3);
-    }
+    logMemFill(pixel,3*sizeof(Uint8),pixels,ct->_width*ct->_height);
+    /* for(;pixels!=end;pixels += 3) { */
+    /*     memcpy(pixels,pixel,3); */
+    /* } */
 }
 
 void fillDepthBuffer(Context* ct,float depth) {
-    float* begin = ct->_depth,
-         * end   = begin + (ct->_width*ct->_height);
-    for(;begin!=end;++begin) {
-        *begin = depth;
-    }
+    logMemFill(&depth,sizeof(float),ct->_depth,
+               ct->_width*ct->_height);
+    /* float* begin = ct->_depth, */
+    /*      * end   = begin + (ct->_width*ct->_height); */
+    /* for(;begin!=end;++begin) { */
+    /*     *begin = depth; */
+    /* } */
 }
 
 void fillBuffers(Context* ct,const Color4 color,float depth) {

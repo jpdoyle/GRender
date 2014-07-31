@@ -18,34 +18,6 @@ void fswap(float* a,float* b) {
     *b = tmp;
 }
 
-void plotPoint(Context* ct,const Vec3 loc,const Color3 color) {
-    int x = loc[0],
-        y = loc[1];
-    if(x < ct->viewport.x || x >= ct->viewport.x+ct->viewport.width ||
-       y < ct->viewport.y || y >= ct->viewport.y+ct->viewport.height) {
-        return;
-    }
-
-    unsigned index = y*ct->_width+x;
-    if(ct->depthEnabled) {
-        if(ct->_depth[index] < loc[2]) {
-            return;
-        }
-    }
-    ct->_depth[index] = loc[2];
-    Uint8* c = ct->surface->pixels + index*3;
-    c[0] = 255*color[0]+0.5;
-    c[1] = 255*color[1]+0.5;
-    c[2] = 255*color[2]+0.5;
-
-    /* memcpy(ct->surface->pixels + index*3,c,3); */
-    /* Uint8* pixels = ct->surface->pixels; */
-    /* unsigned i; */
-    /* for(i=0;i<3;++i) { */
-    /*     pixels[index*3+i] = 255*color[i]+0.5; */
-    /* } */
-}
-
 void rasterPoint(Context* ct,const Varyings* varyings) {
     Color3 color;
     ct->fragShader(ct->uniforms,varyings,color);
@@ -62,25 +34,29 @@ void rasterLine(Context* ct,const Varyings* begin,
     int diffx = x1-x0,diffy = y1-y0;
 
     Axis axis = (abs(diffx) > abs(diffy) ? AXIS_X : AXIS_Y);
+    Axis other = axis == AXIS_X ? AXIS_Y : AXIS_X;
 
     int startCoord,endCoord;
     int viewportMin,viewportMax;
+    int otherMin,otherMax;
+    int xmin = ct->viewport.x,ymin = ct->viewport.y;
+    int xmax = ct->viewport.x+ct->viewport.width-1,
+        ymax = ct->viewport.y+ct->viewport.height-1;
     if(axis == AXIS_X) {
         startCoord = x0;
         endCoord   = x1;
-        viewportMin = ct->viewport.x;
-        viewportMax = ct->viewport.x+ct->viewport.width;
+        viewportMin = xmin;
+        viewportMax = xmax;
+        otherMin = ymin;
+        otherMax = ymax;
     } else {
         startCoord = y0;
         endCoord   = y1;
-        viewportMin = ct->viewport.y;
-        viewportMax = ct->viewport.y+ct->viewport.height;
+        viewportMin = ymin;
+        viewportMax = ymax;
+        otherMin = xmin;
+        otherMax = xmax;
     }
-
-    /*
-    if(startCoord == endCoord) {
-        return;
-    }*/
 
     float step   = 1.0/(endCoord-startCoord);
     float factor = step > 0 ? 0 : 1,
@@ -96,22 +72,20 @@ void rasterLine(Context* ct,const Varyings* begin,
         iend   = min(max(startCoord,endCoord),viewportMax);
 
     subVaryings(diff,end,begin);
-    float stepFactor;/* = axisInterpStep(axis,istart+1,begin,end);*/
-    /* multVaryings(ptStep,diff,stepFactor); */
+    float stepFactor;
 
-    /* printf("Starting line render: \n"); */
-    /* float prevStep = 0; */
     int i;
     for(i=istart;i<=iend;++i) {
         stepFactor = axisInterpStep(axis,i,begin,end);
-        /* printf("%f (%+f), ",stepFactor,stepFactor-prevStep); */
-        /* prevStep = stepFactor; */
         multVaryings(ptStep,diff,stepFactor);
         addVaryings(varyings,begin,ptStep);
         varyings->loc[axis] = i;
+        /* correct for floating point errors */
+        if(varyings->loc[other] > otherMax) {
+            varyings->loc[other] = otherMax;
+        }
         rasterPoint(ct,varyings);
     }
-    /* printf("done.\n"); */
     freeVaryings(varyings);
     freeVaryings(diff);
     freeVaryings(ptStep);

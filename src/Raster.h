@@ -5,7 +5,20 @@
 #include "Shader.h"
 #include "Context.h"
 
-void plotPoint(Context* ct,const Vec3 loc,const Color3 color);
+static inline void plotPoint(Context* ct,const Vec3 loc,
+                             const Color3 color) {
+    int x = loc[0],
+        y = loc[1];
+
+    unsigned index = y*ct->_width+x;
+    if(!ct->depthEnabled || ct->_depth[index] > loc[2]) {
+        ct->_depth[index] = loc[2];
+        Uint8* c = ct->surface->pixels + index*3;
+        c[0] = 255*color[0]+0.5;
+        c[1] = 255*color[1]+0.5;
+        c[2] = 255*color[2]+0.5;
+    }
+}
 
 void rasterPoint(Context* ct,const Varyings* varyings);
 
